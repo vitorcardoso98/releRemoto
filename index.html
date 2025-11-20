@@ -41,9 +41,13 @@
   });
 
   client.on("connect", function () {
-      console.log("Conectado ao HiveMQ!");
-      client.subscribe(TOPIC_STATUS);
-  });
+    console.log("Conectado ao HiveMQ!");
+    client.subscribe(TOPIC_STATUS);
+
+    // PEDIR STATUS AO ESP
+    client.publish("casa/rele/get", "status");
+});
+
 
   // Enviar comando ON/OFF
   function sendCommand(cmd) {
