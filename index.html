@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Controle do Relé</title>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<style>
+  body { font-family: Arial; text-align: center; padding-top: 40px; }
+  button {
+    width: 150px; height: 60px; font-size: 20px;
+    margin: 20px; cursor: pointer; border-radius: 12px; border: none;
+  }
+  #on { background: #32CD32; color: white; }
+  #off { background: #DC143C; color: white; }
+  #status { font-size: 22px; margin-top: 40px; }
+</style>
+</head>
+
+<body>
+<h1>Controle Remoto do Relé</h1>
+
+<button id="on" onclick="sendCommand('ON')">LIGAR</button>
+<button id="off" onclick="sendCommand('OFF')">DESLIGAR</button>
+
+<h2 id="status">Status: —</h2>
+
+<script>
+  // 🔧 CONFIGURAÇÕES — EDITE AQUI:
+  const MQTT_HOST = "wss://36dc0f48c237458595634aff793dbaba.s1.eu.hivemq.cloud:8884/mqtt";
+  const MQTT_USER = "vitorcardoso98";
+  const MQTT_PASS = "Jv123456";
+
+  const TOPIC_CMD = "casa/rele/cmd";
+  const TOPIC_STATUS = "casa/rele/status";
+
+  // 📡 Conectando ao HiveMQ via WebSockets
+  const client = mqtt.connect(MQTT_HOST, {
+      username: MQTT_USER,
+      password: MQTT_PASS,
+      reconnectPeriod: 2000
+  });
+
+  client.on("connect", function () {
+      console.log("Conectado ao HiveMQ!");
+      client.subscribe(TOPIC_STATUS);
+  });
+
+  // Enviar comando ON/OFF
+  function sendCommand(cmd) {
+      client.publish(TOPIC_CMD, cmd);
+  }
+
+  // Receber status do ESP8266
+  client.on("message", function (topic, message) {
+      if (topic === TOPIC_STATUS) {
+          document.getElementById("status").innerText =
+              "Status: " + message.toString();
+      }
+  });
+</script>
+</body>
+</html>
